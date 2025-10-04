@@ -5,8 +5,8 @@ class AmazonProductSentimentAnalyzer:
     def __init__(self, input: str):
         self.input = input
         self.sid = SentimentIntensityAnalyzer()
-        self.dataset = pd.read_json(self.input, lines=True)
-        self.cleaned_dataset = self.clean_data(self.dataset)
+        self.cleaned_dataset = pd.read_csv(self.input)
+        #self.cleaned_dataset = self.clean_data(self.dataset)
         self.analyze_sentiments()
 
 
@@ -36,6 +36,6 @@ class AmazonProductSentimentAnalyzer:
         }
     
 if __name__ == "__main__":
-    analyzer = AmazonProductSentimentAnalyzer('Web_Scraping/Electronics.jsonl')
+    analyzer = AmazonProductSentimentAnalyzer('AI_Models/cleaned_electronics.csv')
     result = analyzer.product_lookup('B0DGHQ2QH6')
     print(result)
