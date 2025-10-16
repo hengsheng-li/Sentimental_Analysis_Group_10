@@ -16,7 +16,7 @@ class RedditSentimentAnalyzer:
         self.client_secret = "Lp_gNkS3REot4SpeYAQ7xqRm-6pZyw"
         self.user_agent =  "reddit-sentiment-vader/1.0"
 
-        if not self.client_id or not self.lient_secret:
+        if not self.client_id or not self.client_secret:
             raise RuntimeError(
                 "Missing Reddit credentials. Set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET."
             )
@@ -58,15 +58,11 @@ class RedditSentimentAnalyzer:
         return text
 
 
-    def fetch_posts(self, reddit, query: str, subreddits: Optional[List[str]], 
-                    limit_posts: int, sort: str,
-                    flair: Optional[str] = None):
-        if not subreddits:
-            subreddits = ["all"]
-
+    def fetch_posts(self, reddit, query: str, limit_posts: int, sort: str,
+                    subreddits: Optional[List[str]] = ['all']):
         for sub in subreddits:
-            subreddit = self.reddit.subreddit(sub)
-            results = subreddit.search(query=query, flair=flair, sort=sort, limit=limit_posts)
+            subreddit = reddit.subreddit(sub)
+            results = subreddit.search(query=query, sort=sort, limit=limit_posts)
             for post in results:
                 yield post
 
@@ -94,27 +90,24 @@ class RedditSentimentAnalyzer:
     
     
     def run(self):
-        reddit = self.reddit
         analyzer = SentimentIntensityAnalyzer()
         while True:
-            sentence = input("Enter: 'Item' 'Sub' 'post' 'comments' 'sort'").lower()
-            item = sentence.split()[0]
-            subreddits = sentence.split()[1].split(",") if len(sentence.split()) > 1 else None
-            limit_posts = int(sentence.split()[2]) if len(sentence.split()) > 2 else 50
-            max_comments = int(sentence.split()[3]) if len(sentence.split()) > 3 else 10
-            sort = sentence.split()[4] if len(sentence.split()) > 4 else 'relevance'
+            item = input("Enter Item: ")
+            if not item or item.lower() in ("exit", "quit", "q"):
+                print("Exiting.")
+                break
 
             records: List[Dict] = []
             seen_posts = set()
 
-            for post in self.fetch_posts(reddit, item, subreddits, limit_posts, sort , flair="Product Review"):
+            for post in self.fetch_posts(reddit=self.reddit, query=f'{item} review', limit_posts=25, sort='relevance'):
                 if post.id in seen_posts:
                     continue
                 seen_posts.add(post.id)
 
+                post_flair = getattr(post, "link_flair_text", None)
                 title = self.clean_text(getattr(post, "title", "") or "")
-                flair = getattr(post, "link_flair_text", None)
-                tags = self.extract_tags(title, flair)
+                tags = self.extract_tags(title, post_flair)
                 url = f"https://www.reddit.com{post.permalink}"
 
                 body_texts = []
@@ -122,7 +115,7 @@ class RedditSentimentAnalyzer:
                 if selftext and selftext.lower() not in ("[deleted]", "[removed]"):
                     body_texts.append(selftext)
 
-                comments = self.fetch_top_comments(post, max_comments_per_post=max_comments)
+                comments = self.fetch_top_comments(post, max_comments_per_post=1)
                 review_texts = body_texts + comments
 
                 if not review_texts:
@@ -138,7 +131,7 @@ class RedditSentimentAnalyzer:
                         "created_utc": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "title": title,
                         "post_url": url,
-                        "post_flair": flair or "",
+                        "post_flair": post_flair or "",
                         "derived_tags": ", ".join(tags),
                         "review_text": row["text"],
                         "vader_neg": row["neg"],
@@ -147,7 +140,6 @@ class RedditSentimentAnalyzer:
                         "vader_compound": row["compound"],
                     }
                 )
-                time.sleep(0.5)
 
             if not records:
                 print("No results found. Try adjusting your query, subs, or limits.")
