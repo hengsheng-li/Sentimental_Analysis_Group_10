@@ -56,7 +56,6 @@ def extract_tags(title: str, flair: Optional[str]) -> List[str]:
 def clean_text(text: str) -> str:
     if not text:
         return ""
-    # Remove URLs and excessive whitespace
     text = re.sub(r"http\S+|www\.\S+", "", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
