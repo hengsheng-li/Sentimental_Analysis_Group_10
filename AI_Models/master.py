@@ -100,7 +100,7 @@ class RedditSentimentAnalyzer:
             records: List[Dict] = []
             seen_posts = set()
 
-            for post in self.fetch_posts(reddit=self.reddit, query=f'{item} review', limit_posts=25, sort='relevance'):
+            for post in self.fetch_posts(reddit=self.reddit, query=f'{item} review', limit_posts=25, sort='new'):
                 if post.id in seen_posts:
                     continue
                 seen_posts.add(post.id)
@@ -146,7 +146,6 @@ class RedditSentimentAnalyzer:
                 continue
 
 
-
             df = pd.DataFrame.from_records(records)
             post_agg = (
             df.groupby(["post_id", "title", "subreddit", "post_url", "derived_tags"], dropna=False)
@@ -155,7 +154,7 @@ class RedditSentimentAnalyzer:
             .sort_values("avg_compound", ascending=False)
             )
 
-            ts = datetime.now().strftime("%H%M%S")
+            ts = datetime.now().strftime("%H:%M:%S")
             outfile = f"reddit_{item}_{ts}.csv"
             df.to_csv(outfile, index=False)
 
@@ -166,9 +165,10 @@ class RedditSentimentAnalyzer:
             print(f"Total reviews/comments analyzed: {df.shape[0]}")
             print(f"Overall average compound sentiment: {overall_mean:.3f}")
 
+            '''
             print("\nTop 5 posts by average sentiment:")
             for _, r in post_agg.head(5).iterrows():
-                print(f"- ({r['avg_compound']:+.3f}, n={r['n_reviews']}) ")
+                print(f"- ({r['avg_compound']:+.3f}, n={r['n_reviews']}) ")'''
 
     
 if __name__ == "__main__":
