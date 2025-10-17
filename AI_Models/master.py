@@ -158,17 +158,10 @@ class RedditSentimentAnalyzer:
             outfile = f"reddit_{item}_{ts}.csv"
             df.to_csv(outfile, index=False)
 
-            print("\n=== Sentiment Summary ===")
-            overall_mean = df["vader_compound"].mean()
-            print(f"Item: {item}")
-            print(f"Posts analyzed: {post_agg.shape[0]}")
-            print(f"Total reviews/comments analyzed: {df.shape[0]}")
-            print(f"Overall average compound sentiment: {overall_mean:.3f}")
+            time.sleep(5)
 
-            '''
-            print("\nTop 5 posts by average sentiment:")
-            for _, r in post_agg.head(5).iterrows():
-                print(f"- ({r['avg_compound']:+.3f}, n={r['n_reviews']}) ")'''
+            '''Put Claude or other LLM integration here to summarize findings'''
+            
 
     
 if __name__ == "__main__":
