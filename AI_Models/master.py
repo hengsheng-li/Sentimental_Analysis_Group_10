@@ -100,7 +100,7 @@ class RedditSentimentAnalyzer:
             records: List[Dict] = []
             seen_posts = set()
 
-            for post in self.fetch_posts(reddit=self.reddit, query=f'{item} review', limit_posts=25, sort='new'):
+            for post in self.fetch_posts(reddit=self.reddit, query=f'{item} review', limit_posts=25, sort='relevance'):
                 if post.id in seen_posts:
                     continue
                 seen_posts.add(post.id)
