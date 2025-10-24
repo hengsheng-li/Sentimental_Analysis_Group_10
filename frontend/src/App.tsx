@@ -8,6 +8,7 @@ import { themeSettings } from "./theme";
 import Layout from "./scenes/layout";
 import Dashboard from "./scenes/dashboard";
 import type { RootState } from "index";
+import ProductsPage from "./scenes/products/ProductsPage";
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
@@ -24,6 +25,7 @@ function App(): React.JSX.Element {
             <Route element={<Layout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/products" element={<ProductsPage />} />
             </Route>
           </Routes>
         </ThemeProvider>

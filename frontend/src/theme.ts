@@ -8,7 +8,7 @@ type ColorShades = {
 type Tokens = {
     grey: ColorShades;
     primary: ColorShades;
-    secondary: ColorShades
+    secondary: ColorShades;
 };
 
 // Color design tokens export
@@ -30,30 +30,31 @@ export const tokensDark: Tokens = {
     },
 
     primary: {
-        // Blue
-        100: "#d3d4de",
-        200: "#a6a9be",
-        300: "#7a7f9d",
-        400: "#4d547d",
-        500: "#21295c",
-        600: "#191F45",
-        700: "#141937",
-        800: "#0d1025",
-        900: "#070812",
+        // Blue - Background Color
+        50: "#e6e9f2",
+        100: "#bfc9e0",
+        200: "#96a6ca",
+        300: "#6d84b5",
+        400: "#4d6aa7",
+        500: "#285199",
+        600: "#214990",
+        700: "#174085",
+        800: "#282f45",
+        900: "#070f24",
     },
 
     secondary: {
-        // Yellow
-        50: "#f0f0f0",
-        100: "#fff6e0",
-        200: "#ffedc2",
-        300: "#ffe3a3",
-        400: "#ffda85",
-        500: "#ffd166",
-        600: "#cca752",
-        700: "#997d3d",
-        800: "#665429",
-        900: "#332a14",
+        // Purple - Text Color
+        50: "#ebecff",
+        100: "#cdcefe",
+        200: "#abaefe",
+        300: "#878dfe",
+        400: "#6b70fc",
+        500: "#5253f8",
+        600: "#4c49ec",
+        700: "#433ddf",
+        800: "#3c30d3",
+        900: "#3415bb",
     },
 };
 
@@ -89,16 +90,17 @@ export const themeSettings = (mode: "light" | "dark") => {
             mode: mode,
             ...(mode === "dark"
                 ?{
-                    // Dark mode palette values
+                    // DARK MODE palette values
                     primary: {
                         ...tokensDark.primary,
-                        main: tokensDark.primary[400],
+                        main: tokensDark.primary[500],
                         light: tokensDark.primary[400],
                     },
 
+                    // Icon and Title Color
                     secondary: {
                         ...tokensDark.secondary,
-                        main: tokensDark.secondary[300],
+                        main: tokensDark.secondary[50],
                     },
 
                     neutral: {
@@ -106,14 +108,15 @@ export const themeSettings = (mode: "light" | "dark") => {
                         main: tokensDark.grey[500],
                     },
 
+                    // Background Color
                     background: {
-                        default: tokensDark.primary[600],
-                        alt: tokensDark.primary[500],
+                        default: tokensDark.primary[900],
+                        alt: tokensDark.primary[800],
                     },
                 }
                 : {
 
-                    // Light mode palette values
+                    // LIGHT MODE palette values
                     primary: {
                         ...tokensLight.primary,
                         main: tokensDark.grey[50],
@@ -122,7 +125,7 @@ export const themeSettings = (mode: "light" | "dark") => {
 
                     secondary: {
                         ...tokensLight.secondary,
-                        main: tokensDark.secondary[600],
+                        main: tokensDark.secondary[500],
                         light: tokensDark.secondary[700],
                     },
 
