@@ -48,13 +48,13 @@ interface SidebarProps {
 }
 
 const navItems: NavItem[] = [
-    { text: "Dashboard", icon: <HomeOutlined /> },
-    { text: "Products", icon: <ShoppingCartOutlined /> },
-    { text: "Overview", icon: <PointOfSaleOutlined /> },
-    { text: "Daily", icon: <TodayOutlined /> },
-    { text: "Monthly", icon: <CalendarMonthOutlined /> },
-    { text: "Breakdown", icon: <PieChartOutlined /> },
-    { text: "Performance", icon: <TrendingUpOutlined /> },
+  { text: "Dashboard", icon: <HomeOutlined /> },
+  { text: "Products", icon: <ShoppingCartOutlined /> },
+  { text: "Analytics", icon: <TrendingUpOutlined /> },
+  //{ text: "Daily", icon: <TodayOutlined /> },
+  //{ text: "Monthly", icon: <CalendarMonthOutlined /> },
+  //{ text: "Breakdown", icon: <PieChartOutlined /> },
+  //{ text: "Performance", icon: <TrendingUpOutlined /> },
 ];
 
 

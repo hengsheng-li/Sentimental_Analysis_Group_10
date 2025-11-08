@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useState } from "react";
 import {
   Box,
   Card,
@@ -10,10 +9,9 @@ import {
   Typography,
   Rating,
   useTheme,
-}
-
-from "@mui/material";
+} from "@mui/material";
 import Header from "../../components/Header";
+import appleProducts from "../../data/products.json";
 
 interface Stat {
   yearlySalesTotal: number;
@@ -23,23 +21,25 @@ interface Stat {
 interface ProductProps {
   _id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  rating: number;
+  rating?: number;
   category: string;
-  supply: number;
-  stat: Stat;
+  supply?: number;
+  stat?: Stat;
+  imgUrl?: string;
 }
 
-const Product: React.FC<ProductProps> = ({
+const ProductDisplay: React.FC<ProductProps> = ({
   _id,
   name,
-  description,
+  description = "Largest and most durable display in an Apple Watch at the time, advanced health tracking functionalities, and faster charging",
   price,
-  rating,
+  rating = 0,
   category,
-  supply,
-  stat,
+  supply = 0,
+  stat = { yearlySalesTotal: 0, yearlyTotalSoldUnits: 0 },
+  imgUrl,
 }) => {
   const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -47,143 +47,104 @@ const Product: React.FC<ProductProps> = ({
   return (
     <Card
       sx={{
-        backgroundImage: "none",
-        backgroundColor: theme.palette.primary.light,
-        borderRadius: "0.55rem",
+        backgroundColor: "#fff",
+        boxShadow: theme.shadows[8],
+        borderRadius: "1rem",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        transition: "all 0.3s ease",
+        width: "410px",
+        "&:hover": {
+          boxShadow: theme.shadows[12],
+          transform: "translateY(-4px)",
+        },
       }}
-      >
-        <CardContent>
-          <Typography
-            sx={{ fontSize: 14 }}
-            color={theme.palette.secondary.main}
-            gutterBottom
-          >
-            {category}
-          </Typography>
-          <Typography variant="h5" component="div">
-            {name}
-          </Typography>
-          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary.light}>
-                         ${Number(price).toFixed(2)}
-          </Typography>
-          <Rating value={rating} readOnly />
+    >
+      {/* Product Image — uses Bootstrap-like styling */}
+      {imgUrl && (
+        <Box
+          component="img"
+          src={imgUrl}
+          alt={name}
+          sx={{
+            width: "100%",
+            height: "200px",
+            objectFit: "cover",
+            borderBottom: "1px solid #eee",
+          }}
+        />
+      )}
 
-        <Typography variant="body2">{description}</Typography>
+      <CardContent>
+        <Typography sx={{ fontSize: 14 }} color={"#000"} gutterBottom>
+          {category}
+        </Typography>
+        <Typography
+          variant="h4"
+          component="div"
+          sx={{ fontWeight: 900, color: "#000" }}
+        >
+          {name}
+        </Typography>
+        <Typography sx={{ mb: "1.5rem", fontSize: "1rem" }} color={"#000"}>
+          ${Number(price).toFixed(2)}
+        </Typography>
+        <Rating value={rating} readOnly />
+        <Typography variant="body2" sx={{ mt: 1 }} color={"#000"}>
+          {description}
+        </Typography>
       </CardContent>
-      <CardActions>
+
+      <CardActions sx={{ display: "flex", justifyContent: "center" }}>
         <Button
           variant="contained"
           size="small"
           onClick={() => setIsExpanded(!isExpanded)}
+          sx={{
+            textTransform: "none",
+            borderRadius: "0.2rem",
+            mt: 2,
+          }}
         >
-          See More
+          {"View Analytics"}
         </Button>
       </CardActions>
+
       <Collapse
         in={isExpanded}
         timeout="auto"
         unmountOnExit
-        sx={{
-          color: theme.palette.primary.light,
-        }}
+        sx={{ color: theme.palette.primary.light }}
       >
-        <CardContent>
-          <Typography>id: {_id}</Typography>
-          <Typography>Supply Left: {supply}</Typography>
-          <Typography>Yearly Sales This Year: {stat.yearlySalesTotal}</Typography>
-          <Typography>Yearly Units Sold This Year: {stat.yearlyTotalSoldUnits}</Typography>
-        </CardContent>
       </Collapse>
     </Card>
   );
 };
 
 const Products: React.FC = () => {
-  const isLoading = false;
-
-  // Temporary mock data with Material UI to visualize the cards on screen
-  const mockData: ProductProps[] = [
-    {
-      _id: "1",
-      name: "Laptop",
-      description: "A powerful laptop with long battery life.",
-      price: 1299.99,
-      rating: 4.5,
-      category: "Electronics",
-      supply: 27,
-      stat: { yearlySalesTotal: 50000, yearlyTotalSoldUnits: 250 },
-    },
-    {
-      _id: "2",
-      name: "Headphones",
-      description: "Noise-cancelling headphones.",
-      price: 299.99,
-      rating: 4.7,
-      category: "Audio",
-      supply: 74,
-      stat: { yearlySalesTotal: 15000, yearlyTotalSoldUnits: 400 },
-    },
-  ];
-
-   return (
-    <Box m="1.5rem 2.5rem">
-      <Header title="PRODUCTS" subtitle="See your list of products." />
-      {!isLoading ? (
-        <Box
-          mt="20px"
-          display="grid"
-          gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-          justifyContent="space-between"
-          rowGap="20px"
-          columnGap="1.33%"
-        >
-          {mockData.map((product) => (
-            <Product key={product._id} {...product} />
-          ))}
-        </Box>
-      ) : (
-        <>Loading...</>
-      )}
-    </Box>
-  );
-};
-
-
-interface ProductsPage {
-  review: string;
-  asin: string;
-}
-
-const ProductsPage = () => {
-  const [products, setProducts] = useState<ProductData[]>([]);
-  const [reviews, setReviews] = useState<{ asin: String; review: string }[]>([]);
-
-  // Fetch product reviews from CSV file
-  useEffect(() => {
-    fetch("http://localhost:5002/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        const formatted = data.map((item: any) => ({
-          review: item['It drys up quickly; otherwise'] || "",
-          asin: item['it appears to work']?.["\""] || "",
-        }));
-        setProducts(formatted);
-      })
-      .catch((err) => console.error(err));
-  }, []);
+  const productsMapped: ProductProps[] = appleProducts.map((p) => ({
+    _id: p.id.toString(),
+    name: p.name,
+    price: p.price,
+    category: p.category,
+    imgUrl: p.imgUrl,
+  }));
 
   return (
-    <div className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {products.map((p, i) => (
-        <div
-          key={i}
-          className="border rounded-xl shadow-lg p-4 bg-white hover:shadow-2xl transition-shadow duration-300"
-        >
-          <h3 className="text-lg font-bold mb-2">ASIN: {p.asin || "N/A"}</h3>
-          <p className="text-gray-700">{p.review || "No review available"}</p>
-        </div>
-      ))}
-    </div>
+    <Box m="2.5rem 3.5rem">
+      <Header title="PRODUCTS" subtitle="View the Latest Apple Products" />
+      <Box
+        mt="20px"
+        display="grid"
+        gridTemplateColumns="repeat(auto-fill, minmax(250px, 1fr))"
+        gap="20px"
+      >
+        {productsMapped.map((product) => (
+          <ProductDisplay key={product._id} {...product} />
+        ))}
+      </Box>
+    </Box>
   );
 };
 
