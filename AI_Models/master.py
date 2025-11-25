@@ -4,6 +4,7 @@ import time
 import argparse
 from datetime import datetime
 from typing import List, Dict, Optional
+from claude import ProductReviewAttributeAnalyzer
 
 import pandas as pd
 import praw
@@ -67,7 +68,7 @@ class RedditSentimentAnalyzer:
                 yield post
 
 
-    def fetch_top_comments(self, post, max_comments_per_post: int = 10) -> List[str]:
+    def fetch_top_comments(self, post, max_comments_per_post: int = 2) -> List[str]:
         comments = []
         post.comments.replace_more(limit=0)
         for c in post.comments[: max_comments_per_post * 2]:
@@ -89,7 +90,7 @@ class RedditSentimentAnalyzer:
         return rows
     
     
-    def run(self):
+    def run(self, key):
         analyzer = SentimentIntensityAnalyzer()
         while True:
             item = input("Enter Item: ")
@@ -160,8 +161,60 @@ class RedditSentimentAnalyzer:
 
             time.sleep(5)
 
-            '''Put Claude or other LLM integration here to summarize findings'''
+            """=== Starting Product Review Attribute Analysis ==="""
+
+            # Configuration - Replace with your actual Claude API key and CSV path
+            CONFIG = {
+                'claude_api_key': key,
+                'csv_file_path': outfile,
+                'product_name': item  # Specify the product name
+            }
             
+            # Initialize analyzer
+            analyzer = ProductReviewAttributeAnalyzer(
+                claude_api_key=CONFIG['claude_api_key']
+            )
+            
+            try:
+                # Load reviews from CSV file
+                print(f"=== PRODUCT REVIEW ATTRIBUTE ANALYSIS ===")
+                print(f"Loading reviews from {CONFIG['csv_file_path']}...")
+                
+                reviews = analyzer.load_reviews_from_csv(
+                    csv_path=CONFIG['csv_file_path'],
+                    product_name=CONFIG['product_name']
+                )
+                
+                if not reviews:
+                    print("No reviews found. Please check your CSV file path and format.")
+                    return
+                
+                print(f"Loaded {len(reviews)} reviews")
+                
+                # Optionally limit number of reviews to analyze (for testing/cost management)
+                max_reviews = 50  # Adjust as needed
+                if len(reviews) > max_reviews:
+                    print(f"Limiting analysis to first {max_reviews} reviews")
+                    reviews = reviews[:max_reviews]
+                
+                # Analyze reviews
+                results = analyzer.analyze_reviews_batch(reviews, CONFIG['product_name'])
+                
+                # Generate comprehensive report
+                print("\nGenerating comprehensive report...")
+                report = analyzer.generate_comprehensive_report(results, CONFIG['product_name'])
+                
+                # Display formatted summary
+                analyzer.print_summary_stats(report)
+                
+                # Save detailed report
+                filename = analyzer.save_report(report, filename=f'Json_Results/{item}_claude_review_output_{ts}.json')
+                print(f"\nDetailed report saved as: {filename}")
+                
+            except Exception as e:
+                print(f"Error during analysis: {e}")
+                import traceback
+                traceback.print_exc()
 
     
 if __name__ == "__main__":
