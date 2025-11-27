@@ -1,95 +1,52 @@
-import os
-import re
-import time
-import argparse
-from datetime import datetime
+from reviews import Reddit
+from analysis import AIModelAnalyzer
 from typing import List, Dict, Optional
-from claude import ProductReviewAttributeAnalyzer
-
-import pandas as pd
-import praw
-from praw.models import MoreComments
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
-class RedditSentimentAnalyzer:
-    def __init__(self):
-        self.client_id = "HXZPaigOHwekwXJnzrzcpg"
-        self.client_secret = "Lp_gNkS3REot4SpeYAQ7xqRm-6pZyw"
-        self.user_agent =  "reddit-sentiment-vader/1.0"
-
-        if not self.client_id or not self.client_secret:
-            raise RuntimeError(
-                "Missing Reddit credentials. Set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET."
-            )
-        
-        self.reddit = praw.Reddit(
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-            user_agent=self.user_agent,
-            ratelimit_seconds=5,
-        )
-        self.TAG_PATTERN = re.compile(r"\[(.*?)\]")  
-        self.HASHTAG_PATTERN = re.compile(r"(#\w+)") 
+import json
+from pathlib import Path
+from datetime import datetime
+import json
+import re
 
 
-    def extract_tags(self, title: str, flair: Optional[str]) -> List[str]:
-        tags = []
-        if flair:
-            tags.append(flair.strip())
-
-        if title:
-            tags.extend([t.strip() for t in self.TAG_PATTERN.findall(title)])
-            tags.extend([h.strip("#") for h in self.HASHTAG_PATTERN.findall(title)])
-
-        seen = set()
-        normed = []
-        for t in tags:
-            key = t.lower()
-            if key not in seen:
-                seen.add(key)
-                normed.append(t)
-        return normed
+class SentimentAnalyzer:
+    def __init__(self, api_key: str):
+        self.reddit_client = Reddit()
+        self.analyzer = AIModelAnalyzer(api_key=api_key)
 
 
-    def clean_text(self, text: str) -> str:
-        if not text:
-            return ""
-        text = re.sub(r"http\S+|www\.\S+", "", text)
-        text = re.sub(r"\s+", " ", text).strip()
-        return text
+    def run_analysis(self):
+        item = input("Enter the product name: ")
+        outfile = self.reddit_client.get_csv_reviews(item)
+        reviews = self.analyzer.load_reviews_from_csv(outfile, product_name=item)
+        result = self.analyzer.analyze_reviews(reviews)
+        print(result)
+        # Figure out what type result is and get the data accordingly
 
-
-    def fetch_posts(self, reddit, query: str, limit_posts: int, sort: str,
-                    subreddits: Optional[List[str]] = ['all']):
-        for sub in subreddits:
-            subreddit = reddit.subreddit(sub)
-            results = subreddit.search(query=query, sort=sort, limit=limit_posts)
-            for post in results:
-                yield post
-
-
-    def fetch_top_comments(self, post, max_comments_per_post: int = 2) -> List[str]:
-        comments = []
-        post.comments.replace_more(limit=0)
-        for c in post.comments[: max_comments_per_post * 2]:
-            if isinstance(c, MoreComments):
-                continue
-            body = self.clean_text(getattr(c, "body", "") or "")
-            if body and body.lower() not in ("[deleted]", "[removed]"):
-                comments.append(body)
-                if len(comments) >= max_comments_per_post:
-                    break
-        return comments
-
-
-    def analyze_sentiment(self, texts: List[str], analyzer: SentimentIntensityAnalyzer):
-        rows = []
-        for t in texts:
-            vs = analyzer.polarity_scores(t)
-            rows.append({"text": t, **vs})
-        return rows
     
+
+
     
+if __name__ == "__main__":
+    analyzer = SentimentAnalyzer('your_api_key_here')
+    analyzer.run_analysis()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --- IGNORE --- run with claude api key
+'''
     def run(self, key):
         analyzer = SentimentIntensityAnalyzer()
         while True:
@@ -215,8 +172,4 @@ class RedditSentimentAnalyzer:
                 print(f"Error during analysis: {e}")
                 import traceback
                 traceback.print_exc()
-
-    
-if __name__ == "__main__":
-    analyzer = RedditSentimentAnalyzer()
-    analyzer.run()
+'''
