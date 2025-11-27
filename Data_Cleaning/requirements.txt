@@ -2,3 +2,5 @@ pandas
 numpy
 vaderSentiment
 praw
+openai
+anthropic
