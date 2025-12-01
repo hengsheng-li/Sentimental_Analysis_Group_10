@@ -1,39 +1,56 @@
-import json
-import re
-from pathlib import Path
 
-def extract_numeric_info(json_path: str):
-    # Load the outer JSON file
-    with open(json_path, "r", encoding="utf-8") as f:
-        outer_data = json.load(f)
+import tkinter as tk
+from tkinter import messagebox
+#import matplotlib.pyplot as plt
+from typing import List, Dict
 
-    # Get the raw_output string
-    raw_output = outer_data.get("raw_output", "")
+class DataVisualizer:
+    def __init__(self):
+        self.data = []
+        
 
-    # Remove the ```json ... ``` fences if present
-    cleaned = raw_output.strip()
-    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
-    cleaned = re.sub(r"\s*```$", "", cleaned)
 
-    # Parse the inner JSON
-    inner_data = json.loads(cleaned)
+    def submit(self):
+        # Create window
+        root = tk.Tk()
+        root.title("Product Input")
 
-    # Extract only the key/value pairs where the value is numeric
-    numeric_info = {
-        key: value
-        for key, value in inner_data.items()
-        if isinstance(value, (int, float))
-    }
+        # Create label
+        label = tk.Label(root, text="Enter Product Name:")
+        label.pack(pady=10)
 
-    return numeric_info
+        # Create input field
+        entry = tk.Entry(root, width=40)
+        entry.pack(pady=5)
+
+        # Submit button
+        #submit_button = tk.Button(root, text="Submit", command='submit')
+        #submit_button.pack(pady=10)
+
+        # Run the window loop
+        root.mainloop()    
+
+        product_name = entry.get()
+        messagebox.showinfo("Product Entered", f"You entered: {product_name}")
+        print("Product Name:", product_name)
+
+
+
+
+    def get_user_input(self):
+        root = tk.Tk()
+        root.title("Enter Product Name: ")
+        user_input = tk.simpledialog.askstring("Enter Product Name: ")
+        root.destroy()
+        return user_input
+
+    def show_analysis_result(self, result: list[Dict]):
+        root = tk.Tk()
+        root.withdraw()  # Hide the main window
+        messagebox.showinfo("Analysis Result", result)
+        root.destroy()
+
 
 if __name__ == "__main__":
-    # Path to your file (adjust if needed)
-    json_file = "AI_Models/Analysis_Apple Airpod Pros_21-10-14.json"
-
-    info = extract_numeric_info(json_file)
-
-    # Print results in a readable way
-    print("Numeric fields and their values:")
-    for key, value in info.items():
-        print(f"{key}: {value}")
+    visualizer = DataVisualizer()
+    visualizer.submit()
