@@ -47,7 +47,7 @@ class AIModelAnalyzer:
 
         prompt_text = (
             f'''
-			Analyze this dataframe of review {reviews}.
+			You are an assistant that analyzes product reviews. Analyze this dataframe of review {reviews}.
 			Do a a general postive or negative analysis, 1-10 and a specifice analysis to evaluate any features that are talked about in each review then give the feature a score of 1-10.
             
 			**Scoring Scale (1-10):**
@@ -75,11 +75,7 @@ class AIModelAnalyzer:
             response = self.client.responses.parse(
     			model="gpt-5-nano-2025-08-07",
     			input=[
-        			{
-            			"role": "system",
-            			"content": "You are an assistant that analyzes product reviews.",
-        		},
-        				{"role": "user", "content": prompt_text},
+        			{"role": "user", "content": prompt_text},
     			],
     		text_format=Summary,
 			)

@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 from datetime import datetime
 import json
-import re
 
 
 class SentimentAnalyzer:
@@ -19,15 +18,26 @@ class SentimentAnalyzer:
         outfile = self.reddit_client.get_csv_reviews(item)
         reviews = self.analyzer.load_reviews_from_csv(outfile, product_name=item)
         result = self.analyzer.analyze_reviews(reviews)
-        print(result)
-        # Figure out what type result is and get the data accordingly
 
-    
+        print(f'''
+General Analysis and Feature Scores for {item}:
+-------------------------------
+{result.general_analysis}
+-------------------------------
+Feature Analysis:
+{result.results[0].feature}: {result.results[0].score}/10 
+{result.results[1].feature}: {result.results[1].score}/10
+{result.results[2].feature}: {result.results[2].score}/10
+{result.results[3].feature}: {result.results[3].score}/10
+{result.results[4].feature}: {result.results[4].score}/10
+-------------------------------
 
+''')    
+        return result
 
     
 if __name__ == "__main__":
-    analyzer = SentimentAnalyzer('your_api_key_here')
+    analyzer = SentimentAnalyzer('')
     analyzer.run_analysis()
 
 
