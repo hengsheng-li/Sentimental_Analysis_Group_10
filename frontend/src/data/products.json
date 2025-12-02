@@ -1,9 +1,9 @@
 [
   {
     "id": 1,
-    "name": "Apple Watch Series 7",
+    "name": "Apple Watch Series 9",
     "category": "Electronics",
-    "price": 399,
-    "imgUrl": "../images/apple-watch.webp"
+    "price": 225,
+    "imgUrl": "../images/apple-watchS9.jpeg"
   }
 ]

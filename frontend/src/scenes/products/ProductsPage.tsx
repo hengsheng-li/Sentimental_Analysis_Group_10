@@ -61,19 +61,26 @@ const ProductDisplay: React.FC<ProductProps> = ({
         },
       }}
     >
-      {/* Product Image — uses Bootstrap-like styling */}
       {imgUrl && (
         <Box
-          component="img"
-          src={imgUrl}
-          alt={name}
           sx={{
             width: "100%",
-            height: "200px",
-            objectFit: "cover",
+            height: "250px",
+            overflow: "hidden", // prevents layout shifting
             borderBottom: "1px solid #eee",
           }}
-        />
+        >
+          <Box
+            component="img"
+            src={imgUrl}
+            alt={name}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </Box>
       )}
 
       <CardContent>
@@ -116,8 +123,7 @@ const ProductDisplay: React.FC<ProductProps> = ({
         timeout="auto"
         unmountOnExit
         sx={{ color: theme.palette.primary.light }}
-      >
-      </Collapse>
+      ></Collapse>
     </Card>
   );
 };
